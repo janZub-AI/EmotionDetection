@@ -27,28 +27,3 @@ class Utils():
         test_norm = test_norm / 255.0
         # return normalized images
         return train_norm, test_norm
-
-    # plot diagnostic learning curves
-    def summarize_diagnostics(histories):
-        for i in range(len(histories)):
-            # plot loss
-            pyplot.subplot(2, 1, 1)
-            pyplot.title('Cross Entropy Loss')
-            pyplot.plot(histories[i].history['loss'], color='blue', label='train')
-            pyplot.plot(histories[i].history['val_loss'], color='orange', label='test')
-            # plot accuracy
-            pyplot.subplot(2, 1, 2)
-            pyplot.title('Classification Accuracy')
-            pyplot.plot(histories[i].history['accuracy'], color='blue', label='train')
-            pyplot.plot(histories[i].history['val_accuracy'], color='orange', label='test')
-        pyplot.show()
-
-    # summarize model performance
-    def summarize_performance(scores):
-        # print summary
-        print('Accuracy: mean=%.3f std=%.3f, n=%d' % (mean(scores)*100, std(scores)*100, len(scores)))
-        # box and whisker plots of results
-        pyplot.boxplot(scores)
-        pyplot.show()
-
-
