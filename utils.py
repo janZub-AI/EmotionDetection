@@ -74,18 +74,20 @@ class Utils():
         df = pd.DataFrame(a,columns=['file','label']).sample(frac=1).reset_index(drop=True)
         return df
 
-    def create_dev_set():
+    def move_files(source, dest):
         skip = 100
-        for i in os.listdir(os.path.join(dirname, 'train')):            
-            files_count = len([name for name in os.listdir(os.path.join(dirname, 'train', i)) if os.path.isfile(os.path.join(os.path.join(dirname, 'train', i), name))])
-            if not os.path.exists(os.path.join(dirname, 'dev', i)):
-                os.makedirs(os.path.join(dirname, 'dev', i))
-            for k,j in enumerate(os.listdir(os.path.join(dirname, 'train', i))):
+        for i in os.listdir(os.path.join(dirname, source)):
+            i_path = os.path.join(dirname, dest, i) 
+
+            files_count = len([name for name in os.listdir(i_path) if os.path.isfile(os.path.join(i_path, name))])
+            if not os.path.exists(i_path):
+                os.makedirs(i_path)
+            for k,j in enumerate(os.listdir(i_path)):
                 if k>=files_count * 0.10 + skip:break
                 if k<skip:continue
 
                 print(f'{dir}/train/{i}/{j}')
-                os.replace(os.path.join(dirname, 'train', i, j), os.path.join(dirname, 'dev', i, j))
+                os.replace(os.path.join(i_path, j), os.path.join(dirname, dest, i, j))
 
     def load_data_using_tfdata(dir, take = 1024):
         """
@@ -149,6 +151,3 @@ class Utils():
             data_generator[folder] = prepare_for_training(
                 labeled_ds, cache='./data.tfcache', shuffle_buffer_size = 10000)
         return data_generator
-
-
-Utils.create_dev_set()
