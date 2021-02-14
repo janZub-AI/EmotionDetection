@@ -2,8 +2,10 @@ from keras.models import Sequential
 from keras.models import load_model
 from keras.layers import Conv2D, MaxPooling2D
 from keras.layers import Flatten, Dropout, Dense, BatchNormalization
+
 from keras.layers.advanced_activations import PReLU
 from keras.optimizers import Adam
+from keras.initializers import HeNormal
 
 from kerastuner import HyperModel, HyperParameters
 
@@ -14,18 +16,20 @@ class SmallImagesModel(HyperModel):
         self.input_shape = input_shape
 
     def build(self, hp):
+        initializer = HeNormal()
+
         model = Sequential()
 
 
         model.add(BatchNormalization())
         #init layer 2 options 32/64
-        model.add(Conv2D(filters = hp['init'], kernel_size = (3, 3), input_shape = self.input_shape))
+        model.add(Conv2D(filters = hp['init'], kernel_size = (3, 3), input_shape = self.input_shape, kernel_initializer=initializer))
         model.add(PReLU())
         model.add(BatchNormalization())
         
         #test few cnn layers 3 -> 27 + 9 + 3  => 39 options
         for layer in range(1, hp['cnn_layers'] + 1):
-            model.add(Conv2D(hp['cnn_{0}'.format(layer)], (3, 3)))
+            model.add(Conv2D(hp['cnn_{0}'.format(layer)], (3, 3), kernel_initializer=initializer))
             model.add(PReLU())
 
         if(hp['cnn_layers'] > 1):
@@ -34,7 +38,7 @@ class SmallImagesModel(HyperModel):
 
 
         for layer in range(1, hp['cnn2_layers'] + 1):
-            model.add(Conv2D(hp['cnn2_{0}'.format(layer)], (3, 3)))
+            model.add(Conv2D(hp['cnn2_{0}'.format(layer)], (3, 3), kernel_initializer=initializer))
             model.add(PReLU())
 
         if(hp['cnn2_layers'] > 1):
@@ -46,14 +50,14 @@ class SmallImagesModel(HyperModel):
         #dropout 2 options
         model.add(Dropout(hp['dropout']))
         #dense 2 options
-        model.add(Dense(hp['dense']))
+        model.add(Dense(hp['dense'], kernel_initializer=initializer))
         model.add(BatchNormalization())
         model.add(PReLU())
 
         #dropout 2 options
         model.add(Dropout(hp['dropout']))
         #dense 2 options
-        model.add(Dense(hp['dense2']))
+        model.add(Dense(hp['dense2'], kernel_initializer=initializer))
         model.add(BatchNormalization())
         model.add(PReLU())
 
@@ -117,15 +121,15 @@ class SmallImagesModel(HyperModel):
 
     def generate_model_name(iterable, **kwarg):
         hp = kwarg['hp']
-        name = f"Init({hp['init']})_P_"
+        name = f"Init({hp['init']})_"
         for layer in range(1, hp['cnn_layers'] + 1):
-            name = f"{name}{hp[f'{layer}']}_"
+            name = f"{name}{hp[f'cnn_{layer}']}_"
 
         if(hp['cnn_layers']> 1):
             name = f"{name}P_"
 
         for layer in range(1, hp['cnn2_layers'] + 1):
-            name = f"{name}{hp[f'{layer}']}_"
+            name = f"{name}{hp[f'cnn2_{layer}']}_"
 
         if(hp['cnn2_layers']> 1):
                     name = f"{name}P_"
