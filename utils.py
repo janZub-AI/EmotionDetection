@@ -9,6 +9,7 @@ from numpy import array
 from numpy import argmax
 from sklearn.preprocessing import LabelEncoder
 from sklearn.preprocessing import OneHotEncoder
+import matplotlib.pyplot as plt
 
 dirname = os.path.dirname(__file__)
 class Utils():
@@ -88,66 +89,27 @@ class Utils():
 
                 print(f'{dir}/train/{i}/{j}')
                 os.replace(os.path.join(i_path, j), os.path.join(dirname, dest, i, j))
+    
+    def plot_images_data():
+        row, col = 48, 48
+        classes = 7
 
-    def load_data_using_tfdata(dir, take = 1024):
-        """
-        Load the images in batches using Tensorflow (tfdata).
-        Cache can be used to speed up the process.
-        Faster method in comparison to image loading using Keras.
-        Returns:
-        Data Generator to be used while training the model.
-        """
-        def parse_image(file_path):
-            parts = tf.strings.split(file_path, os.path.sep)
-            class_names = np.array(os.listdir(dirname + '/test'))
-            # The second to last is the class-directory
-            label = parts[-2] == class_names
+        def count_exp(path, set_):
+            dict_ = {}
+            for expression in os.listdir(path):
+                dir_ = os.path.join(path, expression)
+                dict_[expression] = len(os.listdir(dir_))
+            df = pd.DataFrame(dict_, index=[set_])
+            return df
 
-            # load the raw data from the file as a string
-            img = tf.io.read_file(file_path)
-            # convert the compressed string to a 3D uint8 tensor
-            img = tf.image.decode_jpeg(img, channels=1)
-            # Use `convert_image_dtype` to convert to floats in the [0,1] range
-            img = tf.image.convert_image_dtype(img/255, tf.float32)
-            # resize the image to the desired size.
-            img = tf.image.resize(img, [80, 80])
-            return img, tf.argmax(label)
+        train_count = count_exp(os.path.join(dirname, 'train'), 'train')
+        test_count = count_exp(os.path.join(dirname, 'test'), 'test')
+        print(train_count)
+        print(test_count)
 
-        def prepare_for_training(ds, cache=True, shuffle_buffer_size=1000):
-            # If a small dataset, only load it once, and keep it in memory.
-            # use `.cache(filename)` to cache preprocessing work for datasets
-            # that don't fit in memory.
-            if cache:
-                if isinstance(cache, str):
-                    ds = ds.cache(cache)
-                else:
-                    ds = ds.cache()
-            ds = ds.shuffle(buffer_size=shuffle_buffer_size)
-            # Repeat forever
-            ds = ds.repeat()
-            ds = ds.batch(32)
-            # `prefetch` lets the dataset fetch batches in the background
-            # while the model is training.
-            ds = ds.prefetch(buffer_size=AUTOTUNE)
-            return ds
+        train_count.transpose().plot(kind='bar')
+        test_count.transpose().plot(kind='bar')
 
-        data_generator = {}
-        dataset_location = os.path.join(dirname, dir)
-        folders = os.listdir(dataset_location)
+        plt.show()
 
-        for folder in folders:
-            dir_extend = os.path.join(dataset_location, folder, '*')
-            print(dir_extend)
-            list_ds = tf.data.Dataset.list_files(dir_extend).take(take)
-            print(list_ds)
-            AUTOTUNE = tf.data.experimental.AUTOTUNE
-            # Set `num_parallel_calls` so that multiple images are
-            # processed in parallel
-            labeled_ds = list_ds.map(
-                parse_image, num_parallel_calls=AUTOTUNE)
-            # cache = True, False, './file_name'
-            # If the dataset doesn't fit in memory use a cache file,
-            # eg. cache='./data.tfcache'
-            data_generator[folder] = prepare_for_training(
-                labeled_ds, cache='./data.tfcache', shuffle_buffer_size = 10000)
-        return data_generator
+Utils.plot_images_data()
