@@ -1,7 +1,7 @@
 import numpy as np
 import keras
 
-class EarlyStoppingAtMinLoss(keras.callbacks.Callback):
+class EarlyStoppingAt(keras.callbacks.Callback):
     """Stop training when the loss is at its min, i.e. the loss stops decreasing.
 
   Arguments:
@@ -9,10 +9,11 @@ class EarlyStoppingAtMinLoss(keras.callbacks.Callback):
       number of no improvement, training stops.
   """
 
-    def __init__(self, patience = 0, epoch = 0):
-        super(EarlyStoppingAtMinLoss, self).__init__()
+    def __init__(self, patience = 0, ignored_epoch = 0, stop_at = 'val_loss'):
+        super(EarlyStoppingAt, self).__init__()
         self.patience = patience
-        self.epoch_ignored = epoch
+        self.epoch_ignored = ignored_epoch
+        self.stop_at = stop_at
         # best_weights to store the weights at which the minimum loss occurs.
         self.best_weights = None
 
@@ -28,7 +29,7 @@ class EarlyStoppingAtMinLoss(keras.callbacks.Callback):
         if(epoch <= self.epoch_ignored):
             return
 
-        current = logs.get("val_loss")
+        current = logs.get(self.stop_at)
         if np.less(current, self.best):
             self.best = current
             self.wait = 0
