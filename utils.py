@@ -14,8 +14,8 @@ import matplotlib.pyplot as plt
 dirname = os.path.dirname(__file__)
 class Utils():
     # load train and test dataset
-    def load_emotion_dataset(subfolder, take = 1024, batch_size = 32):
-        df = Utils.limit_data(os.path.join(dirname, subfolder), take = take)
+    def load_emotion_dataset(subfolder, take = 1024, batch_size = 32, aug_data = False):
+        df = Utils.limit_data(subfolder, take = take, aug_data = aug_data)
 
         onehot_encoded = Utils.get_values_hot(df.get('label'))     
         labels = tf.convert_to_tensor(onehot_encoded)
@@ -24,7 +24,7 @@ class Utils():
         dataset = tf.data.Dataset.from_tensor_slices((image_paths, labels))
         dataset = dataset.map(Utils.parse_function, num_parallel_calls = 10)
         dataset = dataset.batch(batch_size)
-        dataset.shuffle(10000)
+        dataset.shuffle(100000)
         dataset = dataset.cache() 
         
         return dataset
@@ -63,16 +63,26 @@ class Utils():
         return image,label
 
 
-    def limit_data(dir,skip=0,take=1024):
-        a=[]
-        for i in os.listdir(dir):
-            for k,j in enumerate(os.listdir(dir+'/'+i)):
-                if k>=take:continue
-                if k<skip:continue
+    def limit_data(subfolder, aug_data, skip=0, take=1024):
+       
+        def get_pd(dir):
+            a=[]
+            for i in os.listdir(dir):
+                for k,j in enumerate(os.listdir(dir+'/'+i)):
+                    if k>=take:continue
+                    if k<skip:continue
 
-                a.append((f'{dir}/{i}/{j}',i))
+                    a.append((f'{dir}/{i}/{j}',i))
+            return a
+   
+        dir = os.path.join(dirname, subfolder)
+        data = get_pd(dir)
 
-        df = pd.DataFrame(a,columns=['file','label']).sample(frac=1).reset_index(drop=True)
+        if(aug_data):
+            dir = os.path.join(dirname, f'aug2_{subfolder}')
+            data = data + get_pd(dir)
+
+        df = pd.DataFrame(data,columns=['file','label']).sample(frac=1).reset_index(drop=True)
         return df
 
     def move_files(source, dest):
@@ -102,14 +112,26 @@ class Utils():
             df = pd.DataFrame(dict_, index=[set_])
             return df
 
-        train_count = count_exp(os.path.join(dirname, 'train'), 'train')
-        test_count = count_exp(os.path.join(dirname, 'test'), 'test')
+        train_count = count_exp(os.path.join(dirname, 'train'), 'train')        
+        aug_train_count = count_exp(os.path.join(dirname, 'aug2_train'), 'aug_train')
+        dev_count = count_exp(os.path.join(dirname, 'dev'), 'dev')  
+        aug_dev_count = count_exp(os.path.join(dirname, 'aug2_dev'), 'aug_dev')
+        #test_count = count_exp(os.path.join(dirname, 'test'), 'test')  
+        #aug_test_count = count_exp(os.path.join(dirname, 'aug_test'), 'aug_test')
         print(train_count)
-        print(test_count)
+        print(aug_train_count)
+        print(dev_count)
+        print(aug_dev_count)
+        #print(test_count)
+        #print(aug_test_count)
 
-        train_count.transpose().plot(kind='bar')
-        test_count.transpose().plot(kind='bar')
+        #train_count.transpose().plot(kind='bar')
+        #aug_train_count.transpose().plot(kind='bar')
+        #dev_count.transpose().plot(kind='bar')
+        #aug_dev_count.transpose().plot(kind='bar')
+        #test_count.transpose().plot(kind='bar')
+        #aug_test_count.transpose().plot(kind='bar')
 
         plt.show()
 
-Utils.plot_images_data()
+#Utils.plot_images_data()

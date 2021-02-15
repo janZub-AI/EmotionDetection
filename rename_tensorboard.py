@@ -2,7 +2,7 @@ import json
 import os
 
 class FileManager():
-    def rename_files(path, generate_model_name):
+    def rename_files(path, generate_model_name, project_name):
         """Renames directories with tensorbord data.
         
         Takes in:
@@ -11,7 +11,7 @@ class FileManager():
             - should take in (iterable, **kwarg) and extract kwarg['hp'] which should correspond to hyperparameters
             - should produce unique, new name which will be displayed in tensorboard
         """
-        path = f'{path}/mist_tuner'
+        path = f'{path}/{project_name}'
         folders = os.listdir(path)
         
         for f in folders:

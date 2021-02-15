@@ -132,4 +132,8 @@ dmypy.json
 #
 train/*/*.jpg
 test/*/*.jpg
+aug/*/*.jepg
+dev/*/*.jpg
 *.jpg
+*.jpeg
+workspace.code-workspace
