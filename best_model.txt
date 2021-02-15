@@ -7,10 +7,13 @@ init              |96
 cnn_layers        |2
 cnn_1             |224
 cnn_2             |224
+Pooling           |
 cnn2_layers       |2
 cnn2_1            |160
 cnn2_2            |160
+Pooling           |
 dense             |1000
+dropout           |0.5
 dense2            |300
 dropout           |0.5
 learning_rate     |0.001
@@ -152,4 +155,36 @@ Evaluate on test data
 train loss, train acc: [0.00391763262450695, 0.9983121752738953]
 dev loss, dev acc: [2.4796061515808105, 0.6298392415046692]
 test loss, test acc: [2.4694037437438965, 0.6464196443557739]
+-----------------------------------------
+
+
+Probability to be in 2 top predicted categories.
+
+Hyperparameter    |Value             
+init              |96
+cnn_layers        |2
+cnn_1             |224
+cnn_2             |224
+Pooling           |
+cnn2_layers       |2
+cnn2_1            |160
+cnn2_2            |160
+Pooling           |
+dense             |900
+dropout           |0.5
+dense2            |300
+dropout           |0.5
+learning_rate     |0.001
+
+-----------------------------------------
+30-2.02732.hdf5
+------------------
+Evaluate on test data
+760/760 [==============================] - 15s 20ms/step - loss: 0.0202 - sparse_top_k_categorical_accuracy: 0.9997
+139/139 [==============================] - 3s 19ms/step - loss: 2.0273 - sparse_top_k_categorical_accuracy: 0.7951
+225/225 [==============================] - 4s 19ms/step - loss: 1.9547 - sparse_top_k_categorical_accuracy: 0.8058
+-----------------------------------------
+train loss, train acc: [0.020202146843075752, 0.999670684337616]
+dev loss, dev acc: [2.027315855026245, 0.7951098084449768]
+test loss, test acc: [1.9547007083892822, 0.8057954907417297]
 -----------------------------------------

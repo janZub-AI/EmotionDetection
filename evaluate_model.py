@@ -22,7 +22,7 @@ def evaluate_model(path, model_name):
     print("test loss, test acc:", test_results)
     print('-----------------------------------------')
 
-models = '20210215-175218'
+models = '20210215-211501'
 
 dir = os.path.join('models_checkpoint', models)
 print(dir)
