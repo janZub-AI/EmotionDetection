@@ -10,7 +10,7 @@ from callbacks.early_stopping import EarlyStoppingAt
 
 # global for logging and unique name
 current_time = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
-
+project_name = 'fer-2013'
 # callbacks
 def get_model_checkout(current_time):
     return ModelCheckpoint(
@@ -65,7 +65,7 @@ def run_tuner(hypermodel, hp):
         hyperparameters = hp,
         executions_per_trial = TUNER_SETTINGS['executions_per_trial'],
         directory = TUNER_SETTINGS['log_dir'],     
-        project_name = 'fer-2013')
+        project_name = project_name)
 
 
     
@@ -121,4 +121,4 @@ hypermodel = SmallImagesModel(num_classes = 7, input_shape = (48, 48, 1))
 
 run_tuner(hypermodel, hp)
 input("Press Enter to rename files")
-FileManager.rename_files(TUNER_SETTINGS['log_dir'], hypermodel.generate_model_name, 'fer-2013')
+FileManager.rename_files(TUNER_SETTINGS['log_dir'], hypermodel.generate_model_name, project_name)
