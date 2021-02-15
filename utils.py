@@ -17,8 +17,8 @@ class Utils():
     def load_emotion_dataset(subfolder, take = 1024, batch_size = 32, aug_data = False):
         df = Utils.limit_data(subfolder, take = take, aug_data = aug_data)
 
-        onehot_encoded = Utils.get_values_hot(df.get('label'))     
-        labels = tf.convert_to_tensor(onehot_encoded)
+        labels_as_ints = Utils.get_labels_as_ints(df.get('label'))     
+        labels = tf.convert_to_tensor(labels_as_ints)
         image_paths = tf.convert_to_tensor(df.get('file'), dtype=tf.string)
 
         dataset = tf.data.Dataset.from_tensor_slices((image_paths, labels))
@@ -36,13 +36,13 @@ class Utils():
         image = tf.image.resize(image, [48, 48])
         return image, label
 
-    def get_values_hot(values):
+    def get_labels_as_ints(values):
         label_encoder = LabelEncoder()
         integer_encoded = label_encoder.fit_transform(values)
-        onehot_encoder = OneHotEncoder(sparse=False, dtype=np.int32)
-        integer_encoded = integer_encoded.reshape(len(integer_encoded), 1)
-        return onehot_encoder.fit_transform(integer_encoded)
-
+        #onehot_encoder = OneHotEncoder(sparse=False, dtype=np.int32)
+        #integer_encoded = integer_encoded.reshape(len(integer_encoded), 1)
+        #return onehot_encoder.fit_transform(integer_encoded)
+        return integer_encoded
 
 
     def map_fn(filename, label):

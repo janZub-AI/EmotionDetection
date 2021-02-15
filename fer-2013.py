@@ -2,7 +2,7 @@ from keras.callbacks import TensorBoard, ModelCheckpoint, LearningRateScheduler
 from kerastuner.tuners import RandomSearch
 
 import datetime
-
+import time
 from utils import Utils
 from small_images import SmallImagesModel, SmallImagesHP
 from rename_tensorboard import FileManager
@@ -17,7 +17,7 @@ def get_model_checkout(current_time):
             filepath = f'models_checkpoint/{current_time}/'+'{epoch:02d}-{val_loss:.5f}.hdf5',
             save_weights_only=False,
             verbose = 1,
-            monitor='val_loss',
+            monitor='loss',
             mode='auto',
             period = 5,
             save_best_only=True)
@@ -61,14 +61,12 @@ def run_tuner(hypermodel, hp):
         objective = TUNER_SETTINGS['objective'],
         max_trials = TUNER_SETTINGS['max_trials'],      
         metrics=['accuracy'], 
-        loss='categorical_crossentropy',
+        loss='sparse_categorical_crossentropy',
         hyperparameters = hp,
         executions_per_trial = TUNER_SETTINGS['executions_per_trial'],
         directory = TUNER_SETTINGS['log_dir'],     
         project_name = project_name)
 
-
-    
     tuner.search(train_dataset, validation_data = test_dataset,
                 batch_size = TUNER_SETTINGS['batch_size'],
                 callbacks = TUNER_SETTINGS['callbacks'] + [tb_callback],
@@ -120,5 +118,7 @@ hp = SmallImagesModel.define_hp(hyperparameters)
 hypermodel = SmallImagesModel(num_classes = 7, input_shape = (48, 48, 1))
 
 run_tuner(hypermodel, hp)
-input("Press Enter to rename files")
+
+time.sleep(5.)
 FileManager.rename_files(TUNER_SETTINGS['log_dir'], hypermodel.generate_model_name, project_name)
+
