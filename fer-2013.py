@@ -1,6 +1,6 @@
 from keras.callbacks import TensorBoard, ModelCheckpoint, LearningRateScheduler
 from kerastuner.tuners import RandomSearch
-
+from keras.metrics import SparseTopKCategoricalAccuracy
 import datetime
 import time
 from utils import Utils
@@ -60,7 +60,7 @@ def run_tuner(hypermodel, hp):
         hypermodel,
         objective = TUNER_SETTINGS['objective'],
         max_trials = TUNER_SETTINGS['max_trials'],      
-        metrics=['accuracy'], 
+        metrics= SparseTopKCategoricalAccuracy(k=2), 
         loss='sparse_categorical_crossentropy',
         hyperparameters = hp,
         executions_per_trial = TUNER_SETTINGS['executions_per_trial'],
@@ -81,10 +81,10 @@ es_callback = get_early_stopping()
 # params
 TUNER_SETTINGS = {
     'log_dir' : f'logs/{current_time}',    
-    'batch_size' : 64,  
-    'batches_per_category' : 100000000,
-    'batches_for_validation' : 10,
-    'epochs' : 30,
+    'batch_size' : 128,  
+    'batches_per_category' : 100000,
+    'batches_for_validation' : 100000,
+    'epochs' : 100,
     'max_trials' : 30,
     'executions_per_trial' : 1,
     'objective' : 'val_loss',
