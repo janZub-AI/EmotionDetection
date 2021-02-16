@@ -22,9 +22,11 @@ learning_rate     |0.001
 
 Evaluate on test data
 
->760/760 - 15s 19ms/step - loss: 0.0039 - accuracy: 0.9983
-139/139  - 3s 19ms/step - loss: 2.4796 - accuracy: 0.6298 (created from 0.1 of training set)
-225/225  - 4s 19ms/step - loss: 2.4694 - accuracy: 0.6464
+>760/760 - [##################] - 15s 19ms/step - loss: 0.0039 - accuracy: 0.9983  
+139/139  - [##################] - 3s 19ms/step - loss: 2.4796 - accuracy: 0.6298
+225/225  - [##################] - 4s 19ms/step - loss: 2.4694 - accuracy: 0.6464  
+
+dev set was created from 0.1 of training set, should have use part of test
 
 >train loss, train acc: [0.00391763262450695, 0.9983121752738953]
 dev loss, dev acc: [2.4796061515808105, 0.6298392415046692]
