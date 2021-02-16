@@ -12,12 +12,12 @@ from callbacks.early_stopping import EarlyStoppingAt
 current_time = datetime.datetime.now().strftime("%Y%m%d-%H%M%S")
 project_name = 'fer-2013'
 # callbacks
-def get_model_checkout(current_time):
+def get_model_checkout(current_time, monitor = 'val_loss'):
     return ModelCheckpoint(
-            filepath = f'models_checkpoint/{current_time}/'+'{epoch:02d}-{val_loss:.5f}.hdf5',
+            filepath = f'models_checkpoint/{current_time}/'+'{epoch:02d}-{' + monitor + ':.5f}.hdf5',
             save_weights_only=False,
             verbose = 1,
-            monitor='loss',
+            monitor= monitor,
             mode='auto',
             period = 5,
             save_best_only=True)
@@ -34,8 +34,8 @@ def get_lr_scheduler():
         return lr
 
     return LearningRateScheduler(scheduler)
-def get_early_stopping():
-    return EarlyStoppingAt(patience = 3, ignored_epoch = 5, stop_at = 'loss')
+def get_early_stopping(stop_at = 'val_loss'):
+    return EarlyStoppingAt(patience = 3, ignored_epoch = 5, stop_at = stop_at)
 
 # helpers
 def load_data():
@@ -52,7 +52,7 @@ def run_tuner(hypermodel, hp):
     # load dataset
     train_dataset, test_dataset = load_data()
 
-    # init tensorboard here so each run will have folder 
+    # init tensorboard here so each run will have folder, 
     # which we can rename based on trial_id
     tb_callback = get_tensorboard(TUNER_SETTINGS['log_dir'])
 
@@ -60,7 +60,7 @@ def run_tuner(hypermodel, hp):
         hypermodel,
         objective = TUNER_SETTINGS['objective'],
         max_trials = TUNER_SETTINGS['max_trials'],      
-        metrics= SparseTopKCategoricalAccuracy(k=2), 
+        metrics= ['accuracy'], 
         loss='sparse_categorical_crossentropy',
         hyperparameters = hp,
         executions_per_trial = TUNER_SETTINGS['executions_per_trial'],
@@ -81,9 +81,9 @@ es_callback = get_early_stopping()
 # params
 TUNER_SETTINGS = {
     'log_dir' : f'logs/{current_time}',    
-    'batch_size' : 128,  
-    'batches_per_category' : 100000,
-    'batches_for_validation' : 100000,
+    'batch_size' : 32,  
+    'batches_per_category' : 10,
+    'batches_for_validation' : 2,
     'epochs' : 100,
     'max_trials' : 30,
     'executions_per_trial' : 1,

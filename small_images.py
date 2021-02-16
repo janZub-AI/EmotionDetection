@@ -20,14 +20,11 @@ class SmallImagesModel(HyperModel):
 
         model = Sequential()
 
-
         model.add(BatchNormalization())
-        #init layer 2 options 32/64
         model.add(Conv2D(filters = hp['init'], kernel_size = (3, 3), input_shape = self.input_shape, kernel_initializer=initializer))
         model.add(PReLU())
         model.add(BatchNormalization())
         
-        #test few cnn layers 3 -> 27 + 9 + 3  => 39 options
         for layer in range(1, hp['cnn_layers'] + 1):
             model.add(Conv2D(hp['cnn_{0}'.format(layer)], (3, 3), kernel_initializer=initializer))
             model.add(PReLU())
@@ -47,30 +44,23 @@ class SmallImagesModel(HyperModel):
 
         model.add(Flatten())
 
-        #dropout 2 options
         model.add(Dropout(hp['dropout']))
-        #dense 2 options
         model.add(Dense(hp['dense'], kernel_initializer=initializer))
         model.add(BatchNormalization())
         model.add(PReLU())
 
-        #dropout 2 options
         model.add(Dropout(hp['dropout']))
-        #dense 2 options
         model.add(Dense(hp['dense2'], kernel_initializer=initializer))
         model.add(BatchNormalization())
         model.add(PReLU())
 
         model.add(Dense(self.num_classes, activation='softmax'))
         
-        #3 options
         opt = Adam(learning_rate=hp['learning_rate'])
 
-        #model has 2 * 39 * 2 * 2 * 3 = 936 options
         model.compile(optimizer = opt)
         return model
 
-    #default 936 options
     def define_hp(hp_model = None):
         hp = HyperParameters()
         
